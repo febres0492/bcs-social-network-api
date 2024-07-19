@@ -6,10 +6,14 @@ router.route('/')
     .get(f.getUser)
     .post(f.createUser);
 
-
-
 // /api/users/:userId
 router.route('/:userId')
-    .get(f.getUserById);
+    .get(f.getUserById)
+    .put(f.updateUser)
+    .delete(f.deleteUser);
+
+// /api/users/:userId/friends/:friendId
+router.route('/:userId/friends/:friendId')
+    .post(f.addFriend);
 
 module.exports = router;
