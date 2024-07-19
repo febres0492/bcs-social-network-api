@@ -1,52 +1,27 @@
 const { User, Application } = require('../models');
+const c = require('../utils/helpers').c
 
 module.exports = {
-  // Get all users
-  async getUsers(req, res) {
-    try {
-      const users = await User.find();
-      res.json(users);
-    } catch (err) {
-      res.status(500).json(err);
-    }
-  },
-  // Get a single user
-  async getSingleUser(req, res) {
-    try {
-      const user = await User.findOne({ _id: req.params.userId })
-        .select('-__v');
 
-      if (!user) {
-        return res.status(404).json({ message: 'No user with that ID' });
-      }
+    //create a new user
+    createUser({ body }, res) {
+        console.log(c('body', 'r'), body)
+        User.create(body)
+            .then(data => res.json(data))
+            .catch(err => res.status(400).json(err));
+    },
 
-      res.json(user);
-    } catch (err) {
-      res.status(500).json(err);
+    //get all users
+    getUser(req, res) {
+        User.find({})
+            // .populate({ path: 'applications', select: '-__v' })
+            // .select('-__v') //exclude the __v field
+            // .sort({ _id: -1 }) 
+            .then(dbUserData => res.json(dbUserData))
+            .catch(err => {
+                console.log(err);
+                res.status(400).json(err);
+            });
     }
-  },
-  // create a new user
-  async createUser(req, res) {
-    try {
-      const user = await User.create(req.body);
-      res.json(user);
-    } catch (err) {
-      res.status(500).json(err);
-    }
-  },
-  // Delete a user and associated apps
-  async deleteUser(req, res) {
-    try {
-      const user = await User.findOneAndDelete({ _id: req.params.userId });
 
-      if (!user) {
-        return res.status(404).json({ message: 'No user with that ID' });
-      }
-
-      await Application.deleteMany({ _id: { $in: user.applications } });
-      res.json({ message: 'User and associated apps deleted!' })
-    } catch (err) {
-      res.status(500).json(err);
-    }
-  },
 };
