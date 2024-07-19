@@ -18,6 +18,11 @@ const thoughtSchema = new Schema(
             type: String,
             required: 'You need to leave a username!',
         },
+        userId: {
+            type: Schema.Types.ObjectId,
+            required: true,
+            ref: 'User',
+        },
         reactions: [
             {
                 type: Schema.Types.ObjectId,

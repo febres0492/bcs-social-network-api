@@ -11,16 +11,17 @@ module.exports = {
     },
 
     // get all thoughts
-    getThoughts(req, res) {
+    getAllThoughts(req, res) {
         Thought.find({})
-            .select('-__v') //exclude the __v field
-            .sort({ _id: -1 }) //sort by newest
+            .select('-__v') // exclude the __v field
+            .sort({ _id: -1 }) // sort by newest
+            // .populate({ path: 'user', select: '_id' })
             .then(dbThoughtData => res.json(dbThoughtData))
             .catch(err => {
                 console.log(err);
                 res.status(400).json(err);
             });
-    }, 
+    },
 
     // get thought by id
     getThoughtById({ params }, res) {

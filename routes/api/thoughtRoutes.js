@@ -3,7 +3,7 @@ const f = require('../../controllers/thoughtController');
 
 // /api/thoughts
 router.route('/')
-    .get(f.getThoughts)
+    .get(f.getAllThoughts)
     .post(f.createThought)
     
 // /api/thoughts/:thoughtId
