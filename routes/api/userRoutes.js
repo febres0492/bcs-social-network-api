@@ -9,6 +9,7 @@ router.route('/')
 
 
 // /api/users/:userId
-// router.route('/:userId').get(getSingleUser);
+router.route('/:userId')
+    .get(f.getUserById);
 
 module.exports = router;
