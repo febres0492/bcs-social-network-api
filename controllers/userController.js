@@ -1,5 +1,6 @@
 const { User, Thought } = require('../models');
 const c = require('../utils/helpers').c
+const f = require('../utils/helpers')
 
 module.exports = {
 
@@ -77,14 +78,14 @@ module.exports = {
         let potentialFriend, currentUser;
         try {
             // get current user
-            currentUser = await User.findOne({ _id: params.userId }).select('-__v');
-            if (!currentUser) {
-                return res.status(404).json({ message: 'No user found with this id!' });
-            }
+            currentUser = await f.findUser({User, ...params})
+            if(currentUser.null) { return res.status(404).json({ message: currentUser.message }); }
 
-            potentialFriend = await User.findOne({ _id: params.friendId }).select('-__v');
-            if (!potentialFriend) {
-                return res.status(404).json({ message: 'No friend found with this id!' });
+            potentialFriend = await f.findUser({User, userId: params.friendId, message: 'No friend found with this id!' })
+            if(potentialFriend.null) { return res.status(404).json({ message: potentialFriend.message }); }
+
+            if (currentUser._id.toString() === potentialFriend._id.toString()) {
+                return res.status(400).json({ message: 'You cannot be friends with yourself!' });
             }
 
             // Check if the friendId is already in the user's friends list
@@ -100,27 +101,54 @@ module.exports = {
                 { new: true }
             );
 
-            console.log(c('err', 'r'),  potentialFriend, currentUser)
-
             res.json(dbUserData);
         } catch (err) {
-            console.log(c('currentUser', 'r'),  currentUser)
-            console.log(c('potentialFriend', 'r'),  potentialFriend)
-            if(!potentialFriend || !currentUser) {
+            if(!currentUser) {
                 return res.status(404).json({ message: 'No user found with this id!' });
+            }
+            if(!potentialFriend) {
+                return res.status(404).json({ message: 'No Friend found with this id!' });
             }
             res.status(400).json(err);
         }
     },
 
     //remove friend from user
-    removeFriend({ params }, res) {
-        User.findOneAndUpdate(
-            { _id: params.userId },
-            { $pull: { friends: params.friendId } },
-            { new: true }
-        )
-            .then(dbUserData => res.json(dbUserData))
-            .catch(err => res.json(err));
+    async removeFriend({params}, res) {
+        let potentialFriend, currentUser;
+        try {
+            // get current user
+            currentUser = await f.findUser({User, ...params})
+            console.log(c('currentUser', 'r'), currentUser)
+            if(currentUser.null) { return res.status(404).json({ message: currentUser.message }); }
+
+            potentialFriend = await f.findUser({User, userId: params.friendId, message: 'No friend found with this id!' })
+            console.log(c('potentialFriend', 'r'), potentialFriend)
+            if(potentialFriend.null) { return res.status(404).json({ message: potentialFriend.message }); }
+
+            // checking if the friendId is not in the users friends list
+            const userFriendList = currentUser.friends.map(friend => friend.toString())
+            if (!userFriendList.includes(params.friendId)) {
+                return res.status(400).json({ message: 'You are not friends with this user!' })
+            }
+
+            // removing friendId from the user's friends list
+            const dbUserData = await User.findOneAndUpdate(
+                { _id: params.userId },
+                { $pull: { friends: params.friendId } },
+                { new: true }
+            )
+
+            res.json(dbUserData);
+        } catch (err) {
+
+            if(!currentUser) {
+                return res.status(404).json({ message: 'No user found with this id!' });
+            }
+            if(!potentialFriend) {
+                return res.status(404).json({ message: 'No Friend found with this id!' });
+            }
+            res.status(400).json(err);
+        }
     }
-};
+}

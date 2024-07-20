@@ -14,10 +14,6 @@ const thoughtSchema = new Schema(
             default: Date.now,
             get: (createdAtVal) => f.formatDate(createdAtVal),
         },
-        username: {
-            type: String,
-            required: 'You need to leave a username!',
-        },
         userId: {
             type: Schema.Types.ObjectId,
             required: true,

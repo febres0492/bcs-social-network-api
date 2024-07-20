@@ -11,7 +11,7 @@ router.route('/:thoughtId')
     .get(f.getThoughtById)
 
 // /api/thoughts/:thoughtId/reactions
-// router.route('/:thoughtId/reactions').post(addReaction);
+router.route('/:thoughtId/reactions').post(f.addReaction);
 
 // /api/thoughts/:thoughtId/reactions/:reactionId
 // router.route('/:thoughtId/reactions/:reactionId').delete(removeReaction);
