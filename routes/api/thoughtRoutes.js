@@ -9,6 +9,8 @@ router.route('/')
 // /api/thoughts/:thoughtId
 router.route('/:thoughtId')
     .get(f.getThoughtById)
+    .put(f.updateThought)
+    .delete(f.deleteThought)
 
 // /api/thoughts/:thoughtId/reactions
 router.route('/:thoughtId/reactions').post(f.addReaction);

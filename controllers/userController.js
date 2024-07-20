@@ -13,7 +13,7 @@ module.exports = {
     },
 
     //get all users
-    getUser(req, res) {
+    getAllUser(req, res) {
         User.find({})
             // .populate({ path: 'applications', select: '-__v' })
             .select('-__v') //exclude the __v field
@@ -58,10 +58,8 @@ module.exports = {
     //delete user by id and their associated thoughts
     async deleteUser({ params }, res) {
         try {
-            const currentUser = await f.findUser({User, ...params});
-            if (currentUser.null) { 
-                return res.status(404).json({ message: currentUser.message }); 
-            }
+            const currentUser = await f.findItem({ User }, params.userId)
+            if (currentUser.null) { return res.status(404).json(currentUser) }
 
             const dbUserData = await User.findOneAndDelete({ _id: params.userId });
             
@@ -85,11 +83,11 @@ module.exports = {
         let potentialFriend, currentUser;
         try {
             // get current user
-            currentUser = await f.findUser({User, ...params})
-            if(currentUser.null) { return res.status(404).json({ message: currentUser.message }); }
+            currentUser = await f.findItem({User}, params.userId)
+            if(currentUser.null) { return res.status(404).json(currentUser) }
 
-            potentialFriend = await f.findUser({User, userId: params.friendId })
-            if(potentialFriend.null) { return res.status(404).json({ message: 'No friend found with this id' }); }
+            potentialFriend = await f.findItem({User, itemId: params.friendId })
+            if(potentialFriend.null) { return res.status(404).json(potentialFriend) }
 
             if (currentUser._id.toString() === potentialFriend._id.toString()) {
                 return res.status(400).json({ message: 'You cannot be friends with yourself!' });
@@ -125,13 +123,11 @@ module.exports = {
         let potentialFriend, currentUser;
         try {
             // get current user
-            currentUser = await f.findUser({User, ...params})
-            console.log(c('currentUser', 'r'), currentUser)
-            if(currentUser.null) { return res.status(404).json({ message: currentUser.message }); }
+            currentUser = await f.findItem({User}, params.userId)
+            if(currentUser.null) { return res.status(404).json(currentUser) }
 
-            potentialFriend = await f.findUser({User, userId: params.friendId })
-            console.log(c('potentialFriend', 'r'), potentialFriend)
-            if(potentialFriend.null) { return res.status(404).json({ message: 'No friend found with this id' }); }
+            potentialFriend = await f.findItem({User}, params.friendId )
+            if(potentialFriend.null) { return res.status(404).json(potentialFriend) }
 
             // checking if the friendId is not in the users friends list
             const userFriendList = currentUser.friends.map(friend => friend.toString())

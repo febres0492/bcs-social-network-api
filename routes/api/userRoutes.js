@@ -3,7 +3,7 @@ const f = require('../../controllers/userController');
 
 // /api/users
 router.route('/')
-    .get(f.getUser)
+    .get(f.getAllUser)
     .post(f.createUser);
 
 // /api/users/:userId
