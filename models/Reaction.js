@@ -1,4 +1,5 @@
-const { Schema, model } = require('mongoose');
+const { Schema, model, Types } = require('mongoose');
+const f = require('../utils/helpers');
 
 const reactionSchema = new Schema(
     {
@@ -11,14 +12,15 @@ const reactionSchema = new Schema(
             required: true,
             maxlength: 280,
         },
-        username: {
-            type: String,
+        userId: {
+            type: Schema.Types.ObjectId,
             required: true,
+            ref: 'User' 
         },
         createdAt: {
             type: Date,
             default: Date.now,
-            get: (createdAtVal) => dateFormat(createdAtVal),
+            get: (createdAtVal) => f.formatDate(createdAtVal),
         },
     },
     {
@@ -31,4 +33,4 @@ const reactionSchema = new Schema(
 
 const Reaction = model('Reaction', reactionSchema);
 
-module.exports = Reaction;
+module.exports = {Reaction, reactionSchema};

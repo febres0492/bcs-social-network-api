@@ -20,8 +20,8 @@ module.exports = {
 
             res.json(thought);
         } catch (err) {
-            console.log(err);
-            res.status(400).json(err);
+            console.error(err)
+            res.status(500).json({ message: "An error occurred" })
         }
     },
 
@@ -33,8 +33,8 @@ module.exports = {
 
             res.json(thoughts);
         } catch (err) {
-            console.log(err);
-            res.status(400).json(err);
+            console.error(err)
+            res.status(500).json({ message: "An error occurred" })
         }
     },
 
@@ -47,7 +47,8 @@ module.exports = {
             thought = await f.addUsernameToThoughts(thought)
             res.json(thought)
         } catch (err) {
-            res.status(400).json(err);
+            console.error(err)
+            res.status(500).json({ message: "An error occurred" })
         }
     },
 
@@ -72,7 +73,8 @@ module.exports = {
 
             res.json(dbThoughtData);
         } catch (err) {
-            res.status(400).json(err);
+            console.error(err)
+            res.status(500).json({ message: "An error occurred" })
         }
     },
 
@@ -86,30 +88,30 @@ module.exports = {
 
             res.json(dbThoughtData);
         } catch (err) {
-            res.status(400).json(err);
+            console.error(err)
+            res.status(500).json({ message: "An error occurred" })
         }
     },
 
     // add reaction to thought
     async addReaction({ params, body }, res) {
         try {
-            const user = await f.findItem({ User }, body.userId )
-            if (user.null) { return res.status(404).json(user) }
+            const thought = await f.findItem({ Thought }, params.thoughtId )
+            if (thought.null) { return res.status(404).json(thought) }
+
+            const userReacting = await f.findItem({ User }, body.userId )
+            if (userReacting.null) { return res.status(404).json(userReacting) }
 
             const dbThoughtData = await Thought.findOneAndUpdate(
                 { _id: params.thoughtId },
                 { $addToSet: { reactions: body } },
                 { new: true, runValidators: true }
-            );
+            )
 
-            if (!dbThoughtData) {
-                res.status(404).json({ message: 'No thought found with this id!' });
-                return;
-            }
-
-            res.json(dbThoughtData);
+            res.json(dbThoughtData)
         } catch (err) {
-            res.json(err);
+            console.error(err)
+            res.status(500).json({ message: "An error occurred" })
         }
     }
 }
