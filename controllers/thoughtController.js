@@ -6,6 +6,9 @@ module.exports = {
     //create a thought
     async createThought({ body }, res) {
         try {
+            const user = await f.findItem({ User }, body.userId )
+            if (user.null) { return res.status(404).json(user) }
+
             const thought = await Thought.create(body);
 
             // adding the thought to the user thoughts
@@ -26,15 +29,7 @@ module.exports = {
         try {
             let dbThoughtData = await Thought.find({}).select('-__v').sort({ _id: -1 }); 
 
-            // adding the username to each thought
-            const thoughts = await Promise.all(
-                dbThoughtData.map(async (thought) => {
-                    const user = await f.findItem({ User }, thought.userId.toString() )
-                    const obj = thought._doc
-                    if(!user.null) { obj.username = user.username }
-                    return obj
-                })
-            );
+            const thoughts = await f.addUsernameToThoughts(dbThoughtData)
 
             res.json(thoughts);
         } catch (err) {
@@ -46,12 +41,12 @@ module.exports = {
     // get thought by id
     async getThoughtById({ params }, res) {
         try {
-            const thought = await f.findItem({ Thought }, params.thoughtId )
+            let thought = await f.findItem({ Thought }, params.thoughtId )
             if (thought.null) { return res.status(404).json(thought) }
 
+            thought = await f.addUsernameToThoughts(thought)
             res.json(thought)
         } catch (err) {
-            console.log(err);
             res.status(400).json(err);
         }
     },
@@ -61,6 +56,8 @@ module.exports = {
         try {
             const thought = await f.findItem({ Thought },  params.thoughtId )
             if (thought.null) { return res.status(404).json(thought) }
+
+            console.log(c('thought', 'r'), thought)
 
             const dbThoughtData = await Thought.findOneAndUpdate(
                 { _id: params.thoughtId },
@@ -86,11 +83,6 @@ module.exports = {
             if (thought.null) { return res.status(404).json(thought) }
 
             const dbThoughtData = await Thought.findOneAndDelete({ _id: params.thoughtId });
-
-            if (!dbThoughtData) {
-                res.status(404).json({ message: 'No thought found with this id!' });
-                return;
-            }
 
             res.json(dbThoughtData);
         } catch (err) {

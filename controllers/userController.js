@@ -25,21 +25,18 @@ module.exports = {
             });
     },
 
-    //get user by id
-    getUserById({ params }, res) {
-        User.findOne({ _id: params.userId })
-            .select('-__v')
-            .then(dbUserData => {
-                if (!dbUserData) {
-                    res.status(404).json({ message: 'No user found with this id!' });
-                    return;
-                }
-                res.json(dbUserData);
-            })
-            .catch(err => {
-                console.log(err);
-                res.status(400).json(err);
-            });
+    // get user by id
+    async getUserById({ params }, res) {
+        try {
+
+            const currentUser = await f.findItem({ User }, params.userId)
+            if(currentUser.null) { return res.status(404).json(currentUser) }
+            
+            res.json(currentUser)
+        } catch (err) {
+            console.log(err)
+            res.status(400).json(err)
+        }
     },
 
     //update user by id
@@ -86,8 +83,8 @@ module.exports = {
             currentUser = await f.findItem({User}, params.userId)
             if(currentUser.null) { return res.status(404).json(currentUser) }
 
-            potentialFriend = await f.findItem({User, itemId: params.friendId })
-            if(potentialFriend.null) { return res.status(404).json(potentialFriend) }
+            potentialFriend = await f.findItem({User}, params.friendId )
+            if(potentialFriend.null) { return res.status(404).json({...potentialFriend, message: 'No Friend found with this Id'}) }
 
             if (currentUser._id.toString() === potentialFriend._id.toString()) {
                 return res.status(400).json({ message: 'You cannot be friends with yourself!' });
@@ -109,7 +106,7 @@ module.exports = {
             res.json(dbUserData);
         } catch (err) {
             if(!currentUser) {
-                return res.status(404).json({ message: 'No user found with this id!' });
+                return res.status(404).json({ message: 'No User found with this id!' });
             }
             if(!potentialFriend) {
                 return res.status(404).json({ message: 'No Friend found with this id!' });
