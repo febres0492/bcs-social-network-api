@@ -3,6 +3,10 @@ const f = require('../utils/helpers');
 
 const reactionSchema = new Schema(
     {
+        reactionId: {
+            type: Schema.Types.ObjectId,
+            default: () => new Types.ObjectId(),
+        },
         reactionBody: {
             type: String,
             required: true,
@@ -23,10 +27,8 @@ const reactionSchema = new Schema(
         toJSON: {
             getters: true,
         },
-        id: false,
+        _id: false,
     }
 );
 
-const Reaction = model('Reaction', reactionSchema);
-
-module.exports = {Reaction, reactionSchema};
+module.exports = { reactionSchema};

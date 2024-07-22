@@ -9,7 +9,9 @@ module.exports = {
             const user = await f.findItem({ User }, body.userId )
             if (user.null) { return res.status(404).json(user) }
 
-            const thought = await Thought.create(body);
+            body.username = user.username
+
+            const thought = await Thought.create(body)
 
             // adding the thought to the user thoughts
             await User.findByIdAndUpdate(
@@ -29,9 +31,7 @@ module.exports = {
         try {
             let dbThoughtData = await Thought.find({}).select('-__v').sort({ _id: -1 }); 
 
-            const thoughts = await f.addUsernameToThoughts(dbThoughtData)
-
-            res.json(thoughts);
+            res.json(dbThoughtData);
         } catch (err) {
             console.error(err)
             res.status(500).json({ message: "An error occurred" })
@@ -44,7 +44,6 @@ module.exports = {
             let thought = await f.findItem({ Thought }, params.thoughtId )
             if (thought.null) { return res.status(404).json(thought) }
 
-            thought = await f.addUsernameToThoughts(thought)
             res.json(thought)
         } catch (err) {
             console.error(err)
@@ -93,6 +92,7 @@ module.exports = {
 
     // add reaction to thought
     async addReaction({ params, body }, res) {
+        console.log(c('addReaction', 'b'), params, body)
         try {
             const thought = await f.findItem({ Thought }, params.thoughtId )
             if (thought.null) { return res.status(404).json(thought) }
@@ -120,12 +120,12 @@ module.exports = {
             if (thought.null) { return res.status(404).json(thought) }
 
             //checking if the reaction exists
-            const reaction = thought.reactions.id(body.reactionId)
+            const reaction = thought.reactions.some(item => item.reactionId.toString() === body.reactionId)
             if (!reaction) { return res.status(404).json({ message: 'No reaction found with this id!' }) }
 
             const dbThoughtData = await Thought.findOneAndUpdate(
                 { _id: params.thoughtId },
-                { $pull: { reactions: { _id: body.reactionId } } },
+                { $pull: { reactions: { reactionId: body.reactionId } } },
                 { new: true }
             )
 
