@@ -1,4 +1,3 @@
-const User = require('../models/User')
 const date = require('date-and-time');
 
 function c(str='null', color = 'g'){ // this function is to color the console.log
@@ -7,23 +6,32 @@ function c(str='null', color = 'g'){ // this function is to color the console.lo
     return colors[opt[color]](str) 
 }
 
-async function findItem(obj, id) {
-    const key = Object.keys(obj)[0]
-    const model = obj[key]
+async function findItem(obj, val, key = '_id') {
+    const modelName = Object.keys(obj)[0]
+    const model = obj[modelName]
     try {
-        if (!id) {
-            console.log(c('No itemId provided','r'), id)
-            return { null: true, message: `No ${key} id provided in the url!` }
+        if (!val) {
+            console.log(c('No value provided','r'), val)
+            return { 
+                exist: false, 
+                message: `No ${modelName} ${key} provided in the url!` 
+            }
         }
         
-        const item = await model.findOne({ _id: id }).select('-__v')
+        const item = await model.findOne({ [key]: val }).select('-__v')
         if (!item) {
-            return { null: true, message: `No ${key} found with this id!` }
+            return { 
+                exist: false, 
+                message: `No ${modelName} found with this ${key}!` 
+            }
         }
-        return item 
+        return {...item, exist: true} 
     } catch (err) {
-        console.log(c(`Error. No ${key} found with this id`, 'r'), id)
-        return { null: true, message: `Error. No ${key} found with this id` }
+        console.log(c(`Error. No ${modelName} found with this key:`, 'r'), key)
+        return { 
+            exist: false, 
+            message: `Error. No ${modelName} found with this ${key}` 
+        }
     }
 }
 
@@ -31,15 +39,4 @@ module.exports = {
     c,
     findItem,
     formatDate: ()=> date.format(new Date(), 'YYYY/MM/DD HH:mm:ss'),
-    addUsernameToThoughts: async (data)=> {
-        const d = Array.isArray(data) ? data : [data];
-        return await Promise.all(
-            d.map(async (thought) => {
-                const user = await findItem({ User }, thought.userId.toString());
-                const obj = thought._doc;
-                if (!user.null) { obj.username = user.username; }
-                return obj;
-            })
-        );
-    }
 };

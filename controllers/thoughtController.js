@@ -7,7 +7,7 @@ module.exports = {
     async createThought({ body }, res) {
         try {
             const user = await f.findItem({ User }, body.userId )
-            if (user.null) { return res.status(404).json(user) }
+            if (!user.exist) { return res.status(404).json({...user, success: false}) }
 
             body.username = user.username
 
@@ -42,7 +42,7 @@ module.exports = {
     async getThoughtById({ params }, res) {
         try {
             let thought = await f.findItem({ Thought }, params.thoughtId )
-            if (thought.null) { return res.status(404).json(thought) }
+            if (!thought.exist) { return res.status(404).json({...thought, success: false}) }
 
             res.json(thought)
         } catch (err) {
@@ -55,18 +55,13 @@ module.exports = {
     async updateThought({ params, body }, res) {
         try {
             const thought = await f.findItem({ Thought },  params.thoughtId )
-            if (thought.null) { return res.status(404).json(thought) }
+            if (!thought.exist) { return res.status(404).json({...thought, success: false}) }
 
             const dbThoughtData = await Thought.findOneAndUpdate(
                 { _id: params.thoughtId },
                 body,
                 { new: true, runValidators: true }
-            );
-
-            if (!dbThoughtData) {
-                res.status(404).json({ message: 'No thought found with this id!' });
-                return;
-            }
+            )
 
             res.json(dbThoughtData);
         } catch (err) {
@@ -79,7 +74,7 @@ module.exports = {
     async deleteThought({ params }, res) {
         try {
             const thought = await f.findItem({ Thought }, params.thoughtId );
-            if (thought.null) { return res.status(404).json(thought) }
+            if (!thought.exist) { return res.status(404).json({...thought, success: false}) }
 
             const dbThoughtData = await Thought.findOneAndDelete({ _id: params.thoughtId });
 
@@ -95,10 +90,10 @@ module.exports = {
         console.log(c('addReaction', 'b'), params, body)
         try {
             const thought = await f.findItem({ Thought }, params.thoughtId )
-            if (thought.null) { return res.status(404).json(thought) }
+            if (!thought.exist) { return res.status(404).json({...thought, success: false}) }
 
             const userReacting = await f.findItem({ User }, body.userId )
-            if (userReacting.null) { return res.status(404).json(userReacting) }
+            if (!userReacting.exist) { return res.status(404).json({...userReacting, success: false}) }
 
             const dbThoughtData = await Thought.findOneAndUpdate(
                 { _id: params.thoughtId },
@@ -117,7 +112,7 @@ module.exports = {
     async removeReaction({ params, body }, res) {
         try {
             const thought = await f.findItem({ Thought }, params.thoughtId )
-            if (thought.null) { return res.status(404).json(thought) }
+            if (!thought.exist) { return res.status(404).json({...thought, success: false}) }
 
             //checking if the reaction exists
             const reaction = thought.reactions.some(item => item.reactionId.toString() === body.reactionId)
