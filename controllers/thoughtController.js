@@ -114,14 +114,18 @@ module.exports = {
     },
 
     // remove reaction from thought
-    async removeReaction({ params }, res) {
+    async removeReaction({ params, body }, res) {
         try {
             const thought = await f.findItem({ Thought }, params.thoughtId )
             if (thought.null) { return res.status(404).json(thought) }
 
+            //checking if the reaction exists
+            const reaction = thought.reactions.id(body.reactionId)
+            if (!reaction) { return res.status(404).json({ message: 'No reaction found with this id!' }) }
+
             const dbThoughtData = await Thought.findOneAndUpdate(
                 { _id: params.thoughtId },
-                { $pull: { reactions: { _id: params.reactionId } } },
+                { $pull: { reactions: { _id: body.reactionId } } },
                 { new: true }
             )
 
