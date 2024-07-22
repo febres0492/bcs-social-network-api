@@ -19,7 +19,7 @@ module.exports = {
                 return res.status(400).json(
                 { 
                     success: false,
-                    message: [userNameMessage, emailMessage] 
+                    message: [userNameMessage, emailMessage].filter(val => val !== '')
                 }
             ) }
 

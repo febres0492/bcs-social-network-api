@@ -25,7 +25,8 @@ async function findItem(obj, val, key = '_id') {
                 message: `No ${modelName} found with this ${key}!` 
             }
         }
-        return {...item, exist: true} 
+
+        return {...item._doc, exist: true} 
     } catch (err) {
         console.log(c(`Error. No ${modelName} found with this key:`, 'r'), key)
         return { 
