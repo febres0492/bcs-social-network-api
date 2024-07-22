@@ -58,8 +58,6 @@ module.exports = {
             const thought = await f.findItem({ Thought },  params.thoughtId )
             if (thought.null) { return res.status(404).json(thought) }
 
-            console.log(c('thought', 'r'), thought)
-
             const dbThoughtData = await Thought.findOneAndUpdate(
                 { _id: params.thoughtId },
                 body,
@@ -113,5 +111,24 @@ module.exports = {
             console.error(err)
             res.status(500).json({ message: "An error occurred" })
         }
-    }
+    },
+
+    // remove reaction from thought
+    async removeReaction({ params }, res) {
+        try {
+            const thought = await f.findItem({ Thought }, params.thoughtId )
+            if (thought.null) { return res.status(404).json(thought) }
+
+            const dbThoughtData = await Thought.findOneAndUpdate(
+                { _id: params.thoughtId },
+                { $pull: { reactions: { _id: params.reactionId } } },
+                { new: true }
+            )
+
+            res.json(dbThoughtData)
+        } catch (err) {
+            console.error(err)
+            res.status(500).json({ message: "An error occurred" })
+        }
+    } 
 }
