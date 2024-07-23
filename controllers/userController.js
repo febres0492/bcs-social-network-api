@@ -1,5 +1,4 @@
 const { User, Thought } = require('../models');
-const c = require('../utils/helpers').c
 const f = require('../utils/helpers')
 
 module.exports = {

@@ -13,9 +13,9 @@ Built with Node.js and Express.js for the server, it uses MongoDB as its databas
 <br>
 
 
-[![Watch Demo >>](https://img.shields.io/badge/Watch_Demo_>>-darkgreen?style=for-the-badge)](https://bcs-tech-blog.onrender.com/)  
+[![Watch Demo >>](https://img.shields.io/badge/Watch_Demo_>>-darkgreen?style=for-the-badge)](https://drive.google.com/file/d/1kK1xjTPLtpx8XXlKebRzjXAGA9o9VC8m/view)  
 
-https://bcs-tech-blog.onrender.com/
+https://drive.google.com/file/d/1kK1xjTPLtpx8XXlKebRzjXAGA9o9VC8m/view
 
 <br>
 
